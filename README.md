@@ -67,7 +67,7 @@ pip install sentence-transformers
 # pip install flash-attn --no-build-isolation
 # Init wandb
 pip3 install wandb
-export WANDB_API_KEY="70bbc9a46e401b5f7820ef430941a757c23ddb2d"
+export WANDB_API_KEY="12889579b4a78319f80e202e35156aa0f1edd9e4"
 wandb login $WANDB_API_KEY
 
 pip install huggingface_hub
