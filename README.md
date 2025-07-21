@@ -20,7 +20,7 @@ sh cuda_12.1.0_530.30.02_linux.run
 # git clone --recurse-submodules https://github.com/noahwei682/mmsearch_r1.git
 # cd mmsearch_r1
 # git clone --recurse-submodules https://ghfast.top/https://github.com/noahwei682/mmsearch_r1.git
-git clone --recurse-submodules https://github.com/noahwei682/multimodal-search-r1.git
+git clone --recurse-submodules https://github.com/noah888999666/multimodal-search-r1.git
 cd multimodal-search-r1
 # export HF_ENDPOINT=https://hf-mirror.com
 # Init Conda Env
