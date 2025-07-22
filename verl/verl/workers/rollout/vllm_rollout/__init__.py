@@ -16,6 +16,8 @@ from importlib.metadata import PackageNotFoundError, version
 
 from .vllm_rollout_spmd import vLLMAsyncRollout, vLLMRollout  # noqa: F401
 
+# Define the vLLM mode - currently only 'spmd' is supported
+vllm_mode = 'spmd'
 
 def get_version(pkg):
     try:
