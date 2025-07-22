@@ -70,8 +70,10 @@ wandb login $WANDB_API_KEY
 
 pip install huggingface_hub
 #huggingface-cli logout
-export HF_TOKEN=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
-huggingface-cli login --token $HF_TOKEN
+export HF_TOKEN=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
+# huggingface-cli login --token $HF_TOKEN
+git config --global credential.helper store
+huggingface-cli login --add-to-git-credential
 # pip install hydra-core
 # pip install ray
 # pip install numpy
