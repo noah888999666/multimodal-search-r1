@@ -36,6 +36,7 @@ python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     actor_rollout_ref.model.enable_gradient_checkpointing=True \
     actor_rollout_ref.actor.fsdp_config.param_offload=True \
     actor_rollout_ref.actor.fsdp_config.optimizer_offload=True \
+    +actor_rollout_ref.actor.fsdp_config.save_optimizer_state=False \
     +actor_rollout_ref.actor.fsdp_config.sharding_strategy=FULL_SHARD \
     +actor_rollout_ref.actor.fsdp_config.mixed_precision.param_dtype=bf16 \
     +actor_rollout_ref.actor.fsdp_config.mixed_precision.reduce_dtype=bf16 \
@@ -67,7 +68,7 @@ python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     trainer.experiment_name=WANDB_EXP_NAME1 \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
-    trainer.save_freq=3 \
+    trainer.save_freq=10 \
     trainer.test_freq=100 \
     trainer.total_epochs=30 \
     +trainer.search_penalty=0.1 \
