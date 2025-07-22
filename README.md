@@ -71,7 +71,7 @@ export WANDB_API_KEY="12889579b4a78319f80e202e35156aa0f1edd9e4"
 wandb login $WANDB_API_KEY
 
 pip install huggingface_hub
-export HF_TOKEN=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
+export HF_TOKEN=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
 huggingface-cli login --token $HF_TOKEN
 
 # pip install hydra-core
