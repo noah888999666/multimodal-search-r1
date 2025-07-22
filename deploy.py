@@ -72,7 +72,6 @@ pip install huggingface_hub
 #huggingface-cli logout
 export HF_TOKEN=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
 huggingface-cli login --token $HF_TOKEN
-
 # pip install hydra-core
 # pip install ray
 # pip install numpy
