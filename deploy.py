@@ -70,7 +70,7 @@ wandb login $WANDB_API_KEY
 
 pip install huggingface_hub
 #huggingface-cli logout
-export HF_TOKEN=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
+export HF_TOKEN=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
 # huggingface-cli login --token $HF_TOKEN
 git config --global credential.helper store
 huggingface-cli login --add-to-git-credential
