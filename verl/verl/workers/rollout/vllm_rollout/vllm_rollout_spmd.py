@@ -55,6 +55,26 @@ from verl.utils.profiler import GPUMemoryLogger
 from verl.utils.torch_functional import get_response_mask, pad_2d_list_to_length
 from verl.workers.rollout.base import BaseRollout
 
+def _repeat_interleave(x: torch.Tensor | np.ndarray | list, n: int):
+    """
+    Repeat each element in x n times in an interleaved pattern.
+    
+    Args:
+        x: Input tensor, array or list to repeat
+        n: Number of times to repeat each element
+        
+    Returns:
+        Repeated array/tensor with same type as input
+    """
+    if isinstance(x, torch.Tensor):
+        return x.repeat_interleave(n, dim=0)
+    elif isinstance(x, np.ndarray):
+        return np.repeat(x, n, axis=0)
+    elif isinstance(x, list):
+        return [x[i] for i in range(len(x)) for _ in range(n)]
+    else:
+        raise TypeError(f"Unsupported type for _repeat_interleave: {type(x)}")
+
 logger = logging.getLogger(__file__)
 logger.setLevel(os.getenv("VERL_LOGGING_LEVEL", "WARN"))
 
