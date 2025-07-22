@@ -20,7 +20,7 @@ python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     data.user_prompt_round_1=${WORKSPACE_DIR}/mmsearch_r1/prompts/round_1_user_prompt_qwenvl.pkl \
     data.user_prompt_after_image_search=${WORKSPACE_DIR}/mmsearch_r1/prompts/after_image_search_prompt_qwenvl.pkl \
     data.user_prompt_after_text_search=${WORKSPACE_DIR}/mmsearch_r1/prompts/after_text_search_prompt_qwenvl.pkl \
-    actor_rollout_ref.model.path=Qwen/Qwen2.5-VL-7B-Instruct \
+    actor_rollout_ref.model.path=Qwen/Qwen2.5-VL-3B-Instruct \
     actor_rollout_ref.actor.optim.lr=2e-6 \
     actor_rollout_ref.actor.optim.lr_sigmoid_decay_warmup=True \
     actor_rollout_ref.actor.optim.lr_sigmoid_decay_ratio=0.95 \
