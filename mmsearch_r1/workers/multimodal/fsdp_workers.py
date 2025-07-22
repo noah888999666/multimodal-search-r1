@@ -379,6 +379,7 @@ class ActorRolloutRefWorker(Worker):
                 module=self.actor_module_fsdp,
                 inference_engine=rollout.inference_engine,
                 model_config=self.actor_model_config,
+                rollout_config=self.config.rollout,
                 full_params='hf' in self.config.rollout.load_format,
                 device_mesh=rollout_device_mesh,
             )
@@ -414,6 +415,7 @@ class ActorRolloutRefWorker(Worker):
                 module=self.actor_module_fsdp,
                 inference_engine=rollout.inference_engine,
                 model_config=self.actor_model_config,
+                rollout_config=self.config.rollout,
                 full_params='hf' in self.config.rollout.load_format,
                 device_mesh=rollout_device_mesh,
             )
