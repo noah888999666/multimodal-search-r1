@@ -70,13 +70,19 @@ pip3 install wandb
 export WANDB_API_KEY="12889579b4a78319f80e202e35156aa0f1edd9e4"
 wandb login $WANDB_API_KEY
 
-pip install huggingface_hub
+# pip install huggingface_hub
 # huggingface-cli logout
 # export HF_TOKEN=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
 # git config --global credential.helper store
 # huggingface-cli login --token $HF_TOKEN --add-to-git-credential
-unset HF_TOKEN
-huggingface-cli login --token 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
+# unset HF_TOKEN
+# huggingface-cli login --token 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
+
+pip install huggingface_hub
+# unset HF_TOKEN
+# huggingface-cli login --token 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
+pip install -U huggingface_hub
+export HF_ENDPOINT=https://hf-mirror.com
 
 # pip install hydra-core
 # pip install ray
