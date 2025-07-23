@@ -70,8 +70,10 @@ wandb login $WANDB_API_KEY
 
 pip install huggingface_hub
 #huggingface-cli logout
-unset HF_TOKEN
-huggingface-cli login --token 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
+pip install -U huggingface_hub
+export HF_ENDPOINT=https://hf-mirror.com
+# unset HF_TOKEN
+# huggingface-cli login --token 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
 # pip install hydra-core
 # pip install ray
 # pip install numpy
