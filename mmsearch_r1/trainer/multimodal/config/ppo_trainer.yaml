@@ -180,6 +180,10 @@ algorithm:
   kl_ctrl:
     type: fixed
     kl_coef: 0.001
+  filter_groups:
+    enable: false
+    metric: null
+    max_num_gen_batches: 0  # Non-positive values mean no upper limit
 
 trainer:
   total_epochs: 30
