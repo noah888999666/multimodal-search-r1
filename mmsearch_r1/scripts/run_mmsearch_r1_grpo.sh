@@ -11,8 +11,8 @@ WORKSPACE_DIR=$(pwd)
 
 python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     algorithm.adv_estimator=grpo \
-    data.train_files=${WORKSPACE_DIR}/mmsearch_r1/data/mini_data.pq \
-    data.val_files=${WORKSPACE_DIR}/mmsearch_r1/data/mini_data.pq \
+    data.train_files=${WORKSPACE_DIR}/mmsearch_r1/data/sample1000_validation-00000-of-00007.parquet \
+    data.val_files=${WORKSPACE_DIR}/mmsearch_r1/data/eval/popqa/180test.parquet \
     data.train_batch_size=4 \
     data.max_prompt_length=2048 \
     data.max_response_length=1024 \
@@ -64,13 +64,16 @@ python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     algorithm.kl_ctrl.kl_coef=0.001 \
     trainer.critic_warmup=0 \
     trainer.logger=['console','wandb'] \
-    trainer.project_name=WANDB_PROJECT_NAME \
-    trainer.experiment_name=WANDB_EXP_NAME1 \
+    trainer.project_name=Knowledge-RFT \
+    trainer.experiment_name=all_reward_nq1000_lr_2e_6 \
     trainer.n_gpus_per_node=4 \
     trainer.nnodes=1 \
     trainer.save_freq=10 \
     trainer.test_freq=100 \
     trainer.total_epochs=30 \
+    trainer.val_only=False \
+    trainer.val_only_save_dir=/workspace/multimodal-search-r1/outputs/all_reward_nq1000_lr_2e_6_popqa180 \
+    trainer.val_generations_to_log_to_wandb=64 # num of val generations to log, this should be larger than the size of val dataset for complete saving
     +trainer.search_penalty=0.1 \
     +trainer.format_penalty=0.1 \
     +trainer.reward_mode="EM" \
