@@ -209,7 +209,10 @@ class vLLMRollout_MultiTurn_MMSearch_R1(vLLMRollout):
                 for i_gen, response_ in zip(to_generate, response):
                     # update conversation
                     response_ = list(response_)
-                    vllm_inputs[i_gen]['prompt_token_ids'] += response_
+                    # Convert prompt_token_ids to list if it's a numpy array
+                    if isinstance(vllm_inputs[i_gen]['prompt_token_ids'], np.ndarray):
+                        vllm_inputs[i_gen]['prompt_token_ids'] = vllm_inputs[i_gen]['prompt_token_ids'].tolist()
+                    vllm_inputs[i_gen]['prompt_token_ids'].extend(response_)  # Changed from += to extend()
                     multi_turn_response_mask[i_gen].append(
                         torch.ones(len(response_), dtype=attention_mask.dtype, device=attention_mask.device)
                     )  # ASSISTANT, Mark as 1
