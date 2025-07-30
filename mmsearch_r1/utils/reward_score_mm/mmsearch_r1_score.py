@@ -37,6 +37,19 @@ reward_call_counts = {
     "sbert_cosine": 0
 }
 
+# Running statistics for reward normalization
+reward_stats = {
+    'em': {'mean': 0.0, 'std': 1.0, 'count': 0},
+    'bm25': {'mean': 0.0, 'std': 1.0, 'count': 0},
+    'f1': {'mean': 0.0, 'std': 1.0, 'count': 0},
+    'recall': {'mean': 0.0, 'std': 1.0, 'count': 0},
+    'precision': {'mean': 0.0, 'std': 1.0, 'count': 0},
+    'sbert': {'mean': 0.0, 'std': 1.0, 'count': 0}
+}
+
+# Previous state potentials for shaping
+previous_states = {}
+
 # adapted from search-r1
 def normalize_answer(s):
     def remove_articles(text):
@@ -379,15 +392,92 @@ def compute_sbert_cosine_score(prediction, ground_truth):
         print(f"Error in SBERT calculation: {e}")
         return 0.0
 
-def compute_score(prediction: list, ground_truth: list, extra_info=None):
-    # 提取答案
-    assert len(prediction) > 0, "[Error Occurred] Model Responses are empty!"
-    print("[Debug] Raw prediction:", prediction[-1])  # 打印原始预测
-    answer = extract_solution(prediction=prediction[-1])
-    print("[Debug] Extracted answer:", answer)  # 打印提取的答案
+def update_running_stats(reward_type, value):
+    """Update running mean and standard deviation estimates"""
+    stats = reward_stats[reward_type]
+    stats['count'] += 1
+    delta = value - stats['mean']
+    stats['mean'] += delta / stats['count']
+    delta2 = value - stats['mean']
+    stats['std'] = math.sqrt(((stats['count'] - 1) * (stats['std'] ** 2) + delta * delta2) / stats['count'])
+
+def normalize_reward(reward_type, value):
+    """
+    Normalize reward using running statistics and ensure non-negative output
+    Maps to [0,1] range after normalization
+    """
+    stats = reward_stats[reward_type]
+    if stats['count'] < 2:  # Not enough samples for normalization
+        return value
+    # First normalize
+    normalized = (value - stats['mean']) / (stats['std'] + 1e-5)
+    # Then map to [0,1] using sigmoid
+    return 1 / (1 + math.exp(-normalized))
+
+def compute_fuzzy_reward(reward_type, value):
+    """
+    Compute fuzzy reward component using membership functions
+    This creates a smoother reward signal compared to exact rewards
+    Ensures output is in [0,1]
+    """
+    if reward_type == 'em':
+        # For exact match, use a step function
+        return float(value > 0.5)
+    elif reward_type in ['bm25', 'f1', 'recall', 'precision', 'sbert']:
+        # For continuous rewards, use a smooth sigmoid function
+        # Already ensures output in [0,1]
+        return 1 / (1 + math.exp(-10 * (value - 0.5)))
+    return min(max(value, 0), 1)  # Clamp to [0,1]
+
+def compute_potential(state_id, reward_scores):
+    """
+    Compute potential function φ(s) using fuzzy rewards
+    φ(s) = Σ w_i * r_fuzzy_i(s) where Σ w_i = 1
+    Ensures output is in [0,1]
+    """
+    # Weights for each fuzzy reward component (must sum to 1)
+    weights = {
+        'em': 0.3,      # Exact match has higher weight
+        'bm25': 0.15,   # Text similarity
+        'f1': 0.15,     # Overall performance
+        'recall': 0.15, # Coverage
+        'precision': 0.15, # Accuracy
+        'sbert': 0.1    # Semantic similarity
+    }
     
-    # 初始化分数
-    score = 0
+    # Ensure weights sum to 1
+    weight_sum = sum(weights.values())
+    if abs(weight_sum - 1.0) > 1e-6:
+        print(f"Warning: Weights sum to {weight_sum}, normalizing...")
+        weights = {k: v/weight_sum for k, v in weights.items()}
+    
+    # Compute potential using fuzzy rewards
+    potential = 0.0
+    for reward_type, value in reward_scores.items():
+        fuzzy_reward = compute_fuzzy_reward(reward_type, value)
+        potential += weights[reward_type] * fuzzy_reward
+    
+    # Potential is already in [0,1] since weights sum to 1 and fuzzy_rewards in [0,1]
+    return potential
+
+def get_state_signature(prediction, answer=None):
+    """
+    Generate a unique state signature for tracking s and s'
+    Includes both the prediction and extracted answer to better represent state
+    """
+    if isinstance(prediction, list):
+        prediction = prediction[-1]  # Use last prediction for state
+    state_str = f"{prediction}|{answer if answer else ''}"
+    return hash(state_str)
+
+def compute_score(prediction: list, ground_truth: list, extra_info=None):
+    # Extract answer
+    assert len(prediction) > 0, "[Error Occurred] Model Responses are empty!"
+    print("[Debug] Raw prediction:", prediction[-1])
+    answer = extract_solution(prediction=prediction[-1])
+    print("[Debug] Extracted answer:", answer)
+    
+    # Initialize scores
     reward_scores = {
         'em': 0,
         'bm25': 0,
@@ -397,65 +487,84 @@ def compute_score(prediction: list, ground_truth: list, extra_info=None):
         'sbert': 0
     }
     
-    # 计算各种reward
+    # Compute raw rewards (R_kwd in the paper)
     if answer is not None:
-        # 更新计数器
+        # Update counters
         for key in reward_call_counts:
             reward_call_counts[key] += 1
             
-        # 原有的EM/SubEM检查
+        # Original EM/SubEM check
         reward_mode = extra_info.get('reward_mode', 'EM') if extra_info else 'EM'
         if reward_mode == "EM" and em_check(answer, ground_truth):
             reward_scores['em'] = 1
         elif reward_mode == 'SubEM' and subem_check(answer, ground_truth):
             reward_scores['em'] = 1
             
-        # 计算新增的reward
+        # Compute additional rewards
         for gt in ground_truth:
-            print("[Debug] Processing ground truth:", gt)  # 打印当前处理的ground truth
+            print("[Debug] Processing ground truth:", gt)
             reward_scores['bm25'] = max(reward_scores['bm25'], compute_bm25_score(answer, gt))
             reward_scores['f1'] = max(reward_scores['f1'], compute_f1_score(answer, gt))
             reward_scores['recall'] = max(reward_scores['recall'], compute_recall_score(answer, gt))
             reward_scores['precision'] = max(reward_scores['precision'], compute_precision_score(answer, gt))
             reward_scores['sbert'] = max(reward_scores['sbert'], compute_sbert_cosine_score(answer, gt))
-            print("[Debug] Current reward scores:", reward_scores)  # 打印当前的reward分数
+            print("[Debug] Current reward scores:", reward_scores)
     else:
-        print("[Warning] No answer extracted from prediction")  # 打印警告
+        print("[Warning] No answer extracted from prediction")
     
-    # 计算最终分数（可以根据需要调整各个reward的权重）
-    weights = {
-        'em': 0.5,      # EM/SubEM占50%权重
-        'bm25': 0.1,    # BM25占10%权重
-        'f1': 0.1,      # F1占10%权重
-        'recall': 0.1,  # Recall占10%权重
-        'precision': 0.1, # Precision占10%权重
-        'sbert': 0.1    # SBERT占10%权重
-    }
+    # Update running statistics and normalize rewards
+    for reward_type, value in reward_scores.items():
+        update_running_stats(reward_type, value)
+        reward_scores[reward_type] = normalize_reward(reward_type, value)
     
-    score = sum(reward_scores[k] * weights[k] for k in weights)
+    # Generate state signatures for s and s'
+    current_state = get_state_signature(prediction, answer)
     
-    # 格式检查
+    # Compute potential-based shaping
+    # φ(s) = Σ w_i * r_fuzzy_i(s)
+    current_potential = compute_potential(current_state, reward_scores)
+    
+    # Get previous state's potential, defaulting to 0 if not found
+    prev_potential = previous_states.get(current_state, 0)
+    
+    # Update state tracking for future use
+    previous_states[current_state] = current_potential
+    
+    # Compute shaped reward using the formula:
+    # R_shaped = R_kwd + γ * φ(s') - φ(s)
+    # Ensure non-negative reward through proper scaling
+    gamma = 0.99  # discount factor ∈ [0,1]
+    base_reward = sum(reward_scores.values()) / len(reward_scores)  # R_kwd
+    
+    # Scale the potential difference to prevent negative rewards
+    potential_diff = gamma * current_potential - prev_potential
+    # Map potential_diff to [0,1] using sigmoid
+    scaled_potential_diff = 2 / (1 + math.exp(-potential_diff)) - 1  # Maps to [-1,1]
+    
+    # Combine base reward with scaled potential difference
+    alpha = 0.7  # Weight for base reward vs potential difference
+    shaped_reward = alpha * base_reward + (1 - alpha) * (1 + scaled_potential_diff) / 2
+    
+    # Ensure final reward is in [0,1]
+    shaped_reward = min(max(shaped_reward, 0), 1)
+
+    # Format check
     format_score, search_count = format_reward(prediction)
     
-    # 搜索惩罚
-    search_penalty = 0.1
-    format_penalty = 0.1
-    if extra_info is not None:
-        if 'search_penalty' in extra_info:
-            search_penalty = extra_info.get('search_penalty', 0.1)
-        if 'format_penalty' in extra_info:
-            format_penalty = extra_info.get('format_penalty', 0.1)
+    # Search penalty
+    search_penalty = extra_info.get('search_penalty', 0.1) if extra_info else 0.1
+    format_penalty = extra_info.get('format_penalty', 0.1) if extra_info else 0.1
     
-    # 应用搜索惩罚
-    if search_count > 0 and score > 0.99:
+    # Apply search penalty
+    if search_count > 0 and shaped_reward > 0.99:
         use_search_count_penalty = extra_info.get('use_search_count_penalty', False) if extra_info else False
         if use_search_count_penalty:
             for _ in range(search_count):
-                score *= 1 - search_penalty
+                shaped_reward *= 1 - search_penalty
         else:
-            score *= 1 - search_penalty
+            shaped_reward *= 1 - search_penalty
     
-    # 记录到wandb
+    # Log to wandb
     if wandb.run is not None:
         step = max(reward_call_counts.values())
         wandb.log({
@@ -465,10 +574,16 @@ def compute_score(prediction: list, ground_truth: list, extra_info=None):
             'reward/precision': reward_scores['precision'],
             'reward/sbert': reward_scores['sbert'],
             'reward/em': reward_scores['em'],
-            'reward/final': score,
+            'reward/shaped': shaped_reward,
             'reward/format': format_score,
-            'reward/search_count': search_count
+            'reward/search_count': search_count,
+            'reward/potential': current_potential,
+            'reward/fuzzy_potential': current_potential,  # Log fuzzy potential
+            'reward/base': base_reward,  # Log original reward
+            'reward/potential_diff': potential_diff,
+            'reward/scaled_potential_diff': scaled_potential_diff  # Log the scaled difference
         }, step=step)
     
-    # 返回加权分数
-    return (1 - format_penalty) * score + format_penalty * format_score
+    # Return final shaped reward with format consideration
+    final_reward = (1 - format_penalty) * shaped_reward + format_penalty * format_score
+    return min(max(final_reward, 0), 1)  # Final safety clamp to [0,1]
