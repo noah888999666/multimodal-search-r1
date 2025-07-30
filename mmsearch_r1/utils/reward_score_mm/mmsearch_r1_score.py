@@ -86,16 +86,34 @@ def subem_check(prediction, golden_answers):
 
 
 def extract_solution(prediction):
-    """Extract the equation from the solution string."""
-
+    """Extract the answer from the solution string."""
+    # 如果输入是列表，取最后一个元素
+    if isinstance(prediction, list):
+        prediction = prediction[-1]
+    
+    # 确保prediction是字符串
+    if not isinstance(prediction, str):
+        print(f"[Warning] Prediction is not a string: {type(prediction)}")
+        return None
+    
+    # 尝试提取<answer>标签中的内容
     answer_pattern = r'<answer>(.*?)</answer>'
     match = re.finditer(answer_pattern, prediction, re.DOTALL)
     matches = list(match)
-
-    if not matches:
-        return None
-    else:
+    
+    if matches:
         return matches[-1].group(1).strip()
+    
+    # 如果没有找到<answer>标签，尝试提取最后一个完整的句子
+    sentences = re.split(r'[.!?]', prediction)
+    if sentences:
+        last_sentence = sentences[-1].strip()
+        if last_sentence:
+            print("[Warning] No answer tag found, using last sentence as answer:", last_sentence)
+            return last_sentence
+    
+    print("[Warning] No valid answer found in prediction")
+    return None
 
 
 def is_valid_direct_answer(response, direct_answer_format) -> bool:
@@ -270,6 +288,9 @@ def compute_bm25_score(prediction, ground_truth):
     
     # 使用ground_truth作为查询，prediction作为文档计算BM25分数
     query_terms = ground_truth.split()
+    if not query_terms:  # Handle empty query terms
+        return 0.0
+        
     doc_terms = prediction.split()
     doc_len = len(doc_terms)
     
@@ -280,10 +301,10 @@ def compute_bm25_score(prediction, ground_truth):
         if f_td > 0 and idf_t > 0:
             numerator = f_td * (k1 + 1)
             denominator = f_td + k1 * (1 - b + b * (doc_len / avgdl)) if avgdl > 0 else 1
-            bm25_score += idf_t * (numerator / denominator)
+            bm25_score += idf_t * (numerator / denominator)  # 累加每个词的分数
     
     # 归一化BM25分数到0-1范围
-    return min(bm25_score / 10.0, 1.0)
+    return min(bm25_score / (len(query_terms) * 2.0), 1.0)  # 根据查询词数量归一化
 
 def compute_f1_score(prediction, ground_truth):
     """计算F1分数"""
@@ -361,7 +382,9 @@ def compute_sbert_cosine_score(prediction, ground_truth):
 def compute_score(prediction: list, ground_truth: list, extra_info=None):
     # 提取答案
     assert len(prediction) > 0, "[Error Occurred] Model Responses are empty!"
+    print("[Debug] Raw prediction:", prediction[-1])  # 打印原始预测
     answer = extract_solution(prediction=prediction[-1])
+    print("[Debug] Extracted answer:", answer)  # 打印提取的答案
     
     # 初始化分数
     score = 0
@@ -389,11 +412,15 @@ def compute_score(prediction: list, ground_truth: list, extra_info=None):
             
         # 计算新增的reward
         for gt in ground_truth:
+            print("[Debug] Processing ground truth:", gt)  # 打印当前处理的ground truth
             reward_scores['bm25'] = max(reward_scores['bm25'], compute_bm25_score(answer, gt))
             reward_scores['f1'] = max(reward_scores['f1'], compute_f1_score(answer, gt))
             reward_scores['recall'] = max(reward_scores['recall'], compute_recall_score(answer, gt))
             reward_scores['precision'] = max(reward_scores['precision'], compute_precision_score(answer, gt))
             reward_scores['sbert'] = max(reward_scores['sbert'], compute_sbert_cosine_score(answer, gt))
+            print("[Debug] Current reward scores:", reward_scores)  # 打印当前的reward分数
+    else:
+        print("[Warning] No answer extracted from prediction")  # 打印警告
     
     # 计算最终分数（可以根据需要调整各个reward的权重）
     weights = {
