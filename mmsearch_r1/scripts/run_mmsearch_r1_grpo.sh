@@ -74,8 +74,26 @@ python3 -m mmsearch_r1.trainer.multimodal.main_ppo \
     trainer.val_only=False \
     trainer.val_only_save_dir=/workspace/multimodal-search-r1/outputs/mmsearch_last_180 \
     trainer.val_generations_to_log_to_wandb=64 # num of val generations to log, this should be larger than the size of val dataset for complete saving
-    +trainer.search_penalty=0.2 \
-    +trainer.format_penalty=0.1 \
     +trainer.reward_mode="EM" \
     +trainer.val_before_train=False \
-    +algorithm.filter_groups.enable=False
+    +algorithm.filter_groups.enable=False \
+    # Reward component weights
+    +trainer.reward_weights.em=0.3 \
+    +trainer.reward_weights.bm25=0.15 \
+    +trainer.reward_weights.f1=0.15 \
+    +trainer.reward_weights.recall=0.15 \
+    +trainer.reward_weights.precision=0.15 \
+    +trainer.reward_weights.sbert=0.1 \
+    # Reward shaping parameters
+    +trainer.reward_shaping.gamma=0.99 \
+    +trainer.reward_shaping.alpha=0.7 \
+    # Fuzzy reward parameters
+    +trainer.fuzzy_reward.em_threshold=0.5 \
+    +trainer.fuzzy_reward.continuous_scale=10.0 \
+    # Normalization parameters
+    +trainer.reward_norm.use_running_stats=True \
+    +trainer.reward_norm.min_samples=2 \
+    # Search and format penalties
+    +trainer.search_penalty=0.2 \
+    +trainer.format_penalty=0.1 \
+    +trainer.use_search_count_penalty=False
