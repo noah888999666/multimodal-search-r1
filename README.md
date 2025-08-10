@@ -44,6 +44,7 @@ pip install xformers --no-build-isolation --use-pep517 --verbose
 pip install xformers --use-pep517 --no-build-isolation --force-reinstall
 pip install pyzmq --prefer-binary
 pip3 install vllm==0.8.2
+pip install --force-reinstall pydantic==2.10.6
 pip3 install transformers==4.51.0
 pip3 install flash-attn==2.7.4.post1
 pip3 install scikit-learn==1.3.0
