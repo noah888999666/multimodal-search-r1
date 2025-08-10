@@ -38,11 +38,13 @@ conda create -n mmsearch_r1 python==3.10 -y
 conda activate mmsearch_r1
 # Install Dependencies
 pip3 install -e ./verl
+pip install tensordict==0.7.2
 pip3 install vllm==0.8.2
 pip3 install transformers==4.51.0
 pip3 install flash-attn==2.7.4.post1
 pip3 install scikit-learn==1.3.0
 pip install sentence-transformers
+
 
 # conda create -n mmsearch_r1 python==3.10 -y
 # source activate mmsearch_r1
