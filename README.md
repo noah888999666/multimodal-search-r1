@@ -17,6 +17,13 @@ source ~/.bashrc
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
 sh cuda_12.1.0_530.30.02_linux.run
 
+wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
+chmod +x cuda_12.1.0_530.30.02_linux.run
+./cuda_12.1.0_530.30.02_linux.run --silent --toolkit --installpath=$HOME/cuda-12.1
+echo 'export PATH=$HOME/cuda-12.1/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=$HOME/cuda-12.1/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+
 # git clone --recurse-submodules https://github.com/noahwei682/mmsearch_r1.git
 # cd mmsearch_r1
 # git clone --recurse-submodules https://ghfast.top/https://github.com/noahwei682/mmsearch_r1.git
