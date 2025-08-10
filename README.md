@@ -41,6 +41,7 @@ pip3 install -e ./verl
 pip install tensordict==0.7.2
 pip install ninja wheel
 pip install xformers --no-build-isolation --use-pep517 --verbose
+pip install xformers --use-pep517 --no-build-isolation --force-reinstall
 pip3 install vllm==0.8.2
 pip3 install transformers==4.51.0
 pip3 install flash-attn==2.7.4.post1
