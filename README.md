@@ -48,6 +48,8 @@ pip3 install transformers==4.51.0
 pip3 install flash-attn==2.7.4.post1
 pip3 install scikit-learn==1.3.0
 pip install sentence-transformers
+pip install hydra-core
+pip install torchdata
 
 
 # conda create -n mmsearch_r1 python==3.10 -y
