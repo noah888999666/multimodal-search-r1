@@ -48,10 +48,10 @@ conda install -c conda-forge cmake
 conda install -c conda-forge pyarrow
 pip3 install -e ./verl
 # pip install tensordict==0.7.2
-# pip install ninja wheel
+pip install ninja wheel
 # pip install xformers --no-build-isolation --use-pep517 --verbose
 # pip install xformers --use-pep517 --no-build-isolation --force-reinstall
-# pip install pyzmq --prefer-binary
+pip install pyzmq --prefer-binary
 conda install -c conda-forge sentencepiece
 conda install -c pytorch xformers
 pip3 install vllm==0.8.2
