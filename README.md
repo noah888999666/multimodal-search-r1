@@ -53,21 +53,30 @@ pip install --upgrade pip
 # pip install tensordict==0.7.2
 pip install pyzmq --prefer-binary
 conda install -c conda-forge sentencepiece
-pip install ninja wheel
-conda install -c conda-forge ninja cmake gxx_linux-64=11 cudatoolkit-dev=12.1
+conda install -c conda-forge gcc_linux-64=12 gxx_linux-64=12 -y
+export CC=$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-gcc
+export CXX=$CONDA_PREFIX/bin/x86_64-conda-linux-gnu-g++
+pip install ninja pybind11 --no-cache-dir
+pip uninstall -y torch torchvision torchaudio xformers tensordict vllm
+pip install "tensordict<=0.6.2"
+pip install https://download.pytorch.org/whl/cu121/torch-2.5.1%2Bcu121-cp310-cp310-linux_x86_64.whl \
+            https://download.pytorch.org/whl/cu121/torchvision-0.20.1%2Bcu121-cp310-cp310-linux_x86_64.whl \
+            https://download.pytorch.org/whl/cu121/torchaudio-2.5.1%2Bcu121-cp310-cp310-linux_x86_64.whl
+pip install xformers==0.0.28.post1 --extra-index-url https://download.pytorch.org/whl/cu121
+# pip install ninja wheel
+# conda install -c conda-forge ninja cmake gxx_linux-64=11 cudatoolkit-dev=12.1
 # pip install xformers --no-build-isolation --use-pep517 --verbose
 # pip install xformers --use-pep517 --no-build-isolation --force-reinstall
-pip install --upgrade --force-reinstall torch==2.5.1+cu121 torchvision==0.20.1+cu121 --index-url https://download.pytorch.org/whl/cu121
-conda install -c pytorch xformers
+# pip install --upgrade --force-reinstall torch==2.5.1+cu121 torchvision==0.20.1+cu121 --index-url https://download.pytorch.org/whl/cu121
+# conda install -c pytorch xformers
 pip3 install vllm==0.8.2
-pip install --force-reinstall pydantic==2.10.6
+# pip install --force-reinstall pydantic==2.10.6
 pip3 install transformers==4.51.0
 pip3 install flash-attn==2.7.4.post1
 pip3 install scikit-learn==1.3.0
 pip install sentence-transformers
 pip install hydra-core
 pip install torchdata
-
 
 # conda create -n mmsearch_r1 python==3.10 -y
 # source activate mmsearch_r1
