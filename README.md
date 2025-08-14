@@ -52,6 +52,7 @@ pip install ninja wheel
 # pip install xformers --no-build-isolation --use-pep517 --verbose
 # pip install xformers --use-pep517 --no-build-isolation --force-reinstall
 pip install pyzmq --prefer-binary
+pip install --upgrade --force-reinstall torch==2.5.1+cu121 torchvision==0.20.1+cu121 --index-url https://download.pytorch.org/whl/cu121
 conda install -c conda-forge sentencepiece
 conda install -c pytorch xformers
 pip3 install vllm==0.8.2
