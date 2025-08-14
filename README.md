@@ -47,11 +47,11 @@ conda activate mmsearch_r1
 conda install -c conda-forge cmake
 conda install -c conda-forge pyarrow
 pip3 install -e ./verl
-pip install tensordict==0.7.2
-pip install ninja wheel
-pip install xformers --no-build-isolation --use-pep517 --verbose
-pip install xformers --use-pep517 --no-build-isolation --force-reinstall
-pip install pyzmq --prefer-binary
+# pip install tensordict==0.7.2
+# pip install ninja wheel
+# pip install xformers --no-build-isolation --use-pep517 --verbose
+# pip install xformers --use-pep517 --no-build-isolation --force-reinstall
+# pip install pyzmq --prefer-binary
 pip3 install vllm==0.8.2
 pip install --force-reinstall pydantic==2.10.6
 pip3 install transformers==4.51.0
