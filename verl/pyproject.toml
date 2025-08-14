@@ -4,8 +4,7 @@
 [build-system]
 requires = [
     "setuptools>=61.0",
-    "wheel",
-    "pyarrow>=19.0.0"
+    "wheel"
 ]
 build-backend = "setuptools.build_meta"
 
