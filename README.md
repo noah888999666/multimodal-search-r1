@@ -44,6 +44,8 @@ conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 conda create -n mmsearch_r1 python=3.10 -y
 conda activate mmsearch_r1
 # Install Dependencies
+conda install -c conda-forge cmake
+conda install -c conda-forge pyarrow
 pip3 install -e ./verl
 pip install tensordict==0.7.2
 pip install ninja wheel
