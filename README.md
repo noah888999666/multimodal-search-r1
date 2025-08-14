@@ -14,7 +14,7 @@ source ~/miniconda3/bin/activate
 conda init bash
 source ~/.bashrc
 
-pip install --upgrade pip
+
 
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
 sh cuda_12.1.0_530.30.02_linux.run
@@ -49,13 +49,15 @@ conda activate mmsearch_r1
 conda install -c conda-forge cmake
 conda install -c conda-forge pyarrow
 pip3 install -e ./verl
+pip install --upgrade pip
 # pip install tensordict==0.7.2
+pip install pyzmq --prefer-binary
+conda install -c conda-forge sentencepiece
 pip install ninja wheel
+conda install -c conda-forge ninja cmake gxx_linux-64=11 cudatoolkit-dev=12.1
 # pip install xformers --no-build-isolation --use-pep517 --verbose
 # pip install xformers --use-pep517 --no-build-isolation --force-reinstall
-pip install pyzmq --prefer-binary
 pip install --upgrade --force-reinstall torch==2.5.1+cu121 torchvision==0.20.1+cu121 --index-url https://download.pytorch.org/whl/cu121
-conda install -c conda-forge sentencepiece
 conda install -c pytorch xformers
 pip3 install vllm==0.8.2
 pip install --force-reinstall pydantic==2.10.6
