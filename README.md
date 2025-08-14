@@ -41,7 +41,7 @@ conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
 # git clone --recurse-submodules https://github.com/noahwei682/multimodal-search-r1.git
 # cd multimodal-search-r1
 # Init Conda Env
-conda create -n mmsearch_r1 python=3.11 -y
+conda create -n mmsearch_r1 python=3.10 -y
 conda activate mmsearch_r1
 # Install Dependencies
 pip3 install -e ./verl
