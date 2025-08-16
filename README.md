@@ -19,6 +19,15 @@ source ~/.bashrc
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
 sh cuda_12.1.0_530.30.02_linux.run
 
+
+wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda_11.8.0_520.61.05_linux.run
+chmod +x cuda_11.8.0_520.61.05_linux.run
+./cuda_11.8.0_520.61.05_linux.run --silent --toolkit --installpath=$HOME/cuda-11.8
+echo 'export PATH=$HOME/cuda-11.8/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=$HOME/cuda-11.8/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+nvcc --version
+
 wget https://developer.download.nvidia.com/compute/cuda/12.1.0/local_installers/cuda_12.1.0_530.30.02_linux.run
 chmod +x cuda_12.1.0_530.30.02_linux.run
 ./cuda_12.1.0_530.30.02_linux.run --silent --toolkit --installpath=$HOME/cuda-12.1
